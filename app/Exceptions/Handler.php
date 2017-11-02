@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use Zendesk\API\Exceptions\ApiResponseException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -48,6 +49,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+      if ($exception instanceof ApiResponseException) {
+         return back()->withError("Couldn't authenticate you");
+      }
+
         return parent::render($request, $exception);
     }
 }
