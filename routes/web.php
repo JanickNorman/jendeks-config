@@ -21,37 +21,30 @@ Route::prefix('excel')->group(function() {
    Route::post('ticketfields/upload', "ExcelTicketFieldsController@upload");
 
    Route::get('ticketforms', "ExcelTicketFormsController@home")->name('excelTicketForms');
-   Route::get('ticketforms/{sheet}', "ExcelTicketFormsController@read");
    Route::post('ticketforms/download', "ExcelTicketFormsController@download");
    Route::post('ticketforms/upload', "ExcelTicketFormsController@upload");
 
    Route::get('triggers', "ExcelTriggersController@home")->name('excelTriggers');
-   Route::get('triggers/{sheet}', "ExcelTriggersController@read");
    Route::post('triggers/download', "ExcelTriggersController@download");
    Route::post('triggers/upload', "ExcelTriggersController@upload");
 
    Route::get('automations', "ExcelAutomationsController@home")->name('excelAutomations');
-   Route::get('automations/{sheet}', "ExcelAutomationsController@read");
    Route::post('automations/download', "ExcelAutomationsController@download");
    Route::post('automations/upload', "ExcelAutomationsController@upload");
 
    Route::get('slas', "ExcelSLAsController@home")->name('excelSLAs');
-   Route::get('slas/{sheet}', "ExcelSLAsController@read");
    Route::post('slas/download', "ExcelSLAsController@download");
    Route::post('slas/upload', "ExcelSLAsController@upload");
 
    Route::get('macros/', "ExcelMacrosController@home")->name('excelMacros');
-   Route::get('macros/{sheet}', "ExcelMacrosController@read");
    Route::post('macros/download', "ExcelMacrosController@download");
    Route::post('macros/upload', "ExcelMacrosController@upload");
 
    Route::get('views/', "ExcelViewsController@home")->name('excelViews');
-   Route::get('views/{sheet}', "ExcelViewsController@read");
    Route::post('views/download', "ExcelViewsController@download");
    Route::post('views/upload', "ExcelViewsController@upload");
 
    Route::get('groups/', "ExcelGroupsController@home")->name('excelGroups');
-   Route::get('groups/{sheet}', "ExcelGroupsController@read");
    Route::post('groups/download', "ExcelGroupsController@download");
    Route::post('groups/upload', "ExcelGroupsController@upload");
 

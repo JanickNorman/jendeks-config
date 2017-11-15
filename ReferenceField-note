@@ -1,0 +1,111 @@
+View:
+== Condition
+- Brand:Brand:brand_id
+- Form:Ticket Form:ticket_form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id (User with groups)
+- Requester:User:requester_id
+- Organization:Organization:organization_id
+- Channel:(Channel?):via_id
+- Update via:(Channel?):current_via_id
+- Integration account:(Integration?):via_subtype_id
+- Received from:{Inbound Ticket Sharing Account?}:received_from
+- Sent to:{Outbound Ticket Sharing Account?}:sent_to
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+
+Macro:
+== Action
+- Brand:Brand:brand_id
+- Form:Ticket Form:ticket_form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id (User with groups)
+- Add CC:User:cc (User with groups)
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+
+Ticket Field:
+
+
+Ticket Form:
+- (Header) Ticket Field Ids:Ticket Field
+- (Header) Restricted Brand Ids: Brand
+
+Trigger:
+== Conditions
+- Brand:Brand:brand_id
+- Form:Ticket Form:ticket_form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id (User with groups)
+- Requester:User:requester_id
+- Organization:Organization:organization_id
+- Channel:(Channel?):via_id
+- Update via:(Channel?):current_via_id
+- Integration account:(Integration?):via_subtype_id
+- Schedule:(Schedule?):schedule_id
+- Within (schedule):(Schedule?):within_schedule
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+- {User Field Name}:User Field:requester.custom_fields.{user_field_name} (Only fields with dropdown)
+- Current user:User:role
+- Received from:{Inbound Ticket Sharing Account?}:received_from
+- Sent to:{Outbound Ticket Sharing Account?}:sent_to
+- {Organization Field}:Organizatio:organization.custom_fields.{organization_field_name}
+== Actions
+- Brand:Brand:brand_id
+- Form:Ticket Form:ticket_form
+- Group:Group:group_id
+- Assignee:User:assignee_id
+- Add CC:User:cc (User with groups)
+- Set schedule:(Schedule?):set_schedule
+- Share ticket with:(Ticket Sharing Account?):share_ticket
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+- Email User:User [0]:notification_user (User with email)
+- Email Group:Group [0]:notification_group
+- Notify Target:Target [0]:notification_target
+- {User Field Name}:User Field:requester.custom_fields.{user_field_name}
+- {Organization Field}:Organization Field:organization.custom_fields.{organization_field_name}
+
+Automation:
+== Conditions
+- Brand:Brand:brand_id
+- Form:Ticket Form:form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id
+- Requester:User:requester_id
+- Organization:Organization:organization_id
+- Channel:(Channel?):via_id
+- Integration account:(Integration?):via_subtype_id
+- Received from:(Inbound Ticket Sharing Account?):received_from
+- Sent to:(Outbound Ticket Sharing Account?):sent_to
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+- {User Field Name}:User Field:requester.custom_fields.{user_field_name}
+- {Organization Field}:Organization Field:organization.custom_fields.{organization_field_name}
+== Actions
+- Form:Ticket Form:form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id
+- Add CC:User:cc (User with groups)
+- Share ticket with:(Outbound Ticket Sharing Account?):...
+- Email User:User [0]:notification_user (User with email)
+- Email Group:Group [0]:notification_group
+- Notify Target:Target [0]:notification_target
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+- {User Field Name}:User Field:requester.custom_fields.{user_field_name}
+- {Organization Field}:Organization Field:organization.custom_fields.{organization_field_name}
+
+
+SLA:
+== Conditions
+- Brand:Brand:brand_id
+- Form:Ticket Form:ticket_form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id (User with groups)
+- Requester:User:requester_id
+- Organization:Organization:organization_id
+- Channel:(Channel?):via_id
+- Update via:(Channel?):current_via_id
+- Integration account:(Integration?):via_subtype_id
+- {Custom Field Name}:Ticket Field:custom_fields_{id}
+- {User Field Name}:User Field:requester.custom_fields.{user_field_name}
+- Received from:(Inbound Ticket Sharing Account?):received_from
+- Sent to:(Outbound Ticket Sharing Account?):sent_to
+- {Organization Field}:Organization Field:organization.custom_fields.{organization_field_name}
+

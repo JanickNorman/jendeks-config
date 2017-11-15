@@ -1,0 +1,16 @@
+Trigger:
+== Condition ==
+- {Custom Field Name}:Ticket Field:custom_field_{ticket_field_id}
+
+== Action ==
+- Brand:Brand:brand_id
+- Form:Ticket Form:ticket_form_id
+- Group:Group:group_id
+- Assignee:User:assignee_id (User with groups)
+- Add CC:User:cc (User with groups)
+- {Custom Field Name}:Ticket Field:custom_field_{ticket_field_id}
+- Email User:User [0]:notification_user (User with email)
+- Email Group:Group [0]:notification_group
+- Notify Target:Target [0]:notification_target
+- {Field Name}:User Field:requester.custom_fields.{user_field_name} (only field with dropdown option)
+- {Organization Field}:Organization Field:organization.custom_field.{organization_field_name}
