@@ -9,11 +9,10 @@ use \Cache;
 
 class ExcelTicketField extends ResourceExcel
 {
-   const HEADERS_ROW_1 = ["No", "Type", "Title", "Raw Title", "Description", "Position", "Active", "Required", "Collapsed For Agents", "Regexp For Validation", "Title In Portal", "Raw Title In Portal", "Visible In Portal", "Editable In Portal", "Required In Portal", "Tag", "Removable", "Custom Field Options"];
-
-   const HEADERS_ROW_2 = [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Name", "Value", "Default"];
-
-   const STARTING_ROW = 3;
+   protected $headers = [
+      ["No", "Type", "Title", "Raw Title", "Description", "Position", "Active", "Required", "Collapsed For Agents", "Regexp For Validation", "Title In Portal", "Raw Title In Portal", "Visible In Portal", "Editable In Portal", "Required In Portal", "Tag", "Removable", "Custom Field Options"],
+      [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Name", "Value", "Default"]
+   ];
 
    public $ticket_fields;
 
@@ -21,21 +20,7 @@ class ExcelTicketField extends ResourceExcel
    {
       parent::__construct($client);
 
-      $this->ticket_fields = isset($slas_response) ? $slas_response : [];
-   }
-
-   public function toExcel(): LaravelExcelWriter
-   {
-      $self = $this;
-
-      $this->generateTicketFields();
-
-      return Excel::create("template:treesdemo1:ticket_fields", function($excel)  use ($self) {
-         $excel->sheet("template--ticket_fields", function($sheet) use ($self) {
-            $self->buildHeader($sheet);
-            $self->buildBody($sheet);
-         });
-      });
+      $this->ticket_fields = isset($ticket_fields_response) ? $ticket_fields_response : [];
    }
 
    public function read($filepath): Array
@@ -43,44 +28,31 @@ class ExcelTicketField extends ResourceExcel
       return [];
    }
 
-   public function generateTicketFields()
-   {
-   }
-
    public function setTicketFields(array $ticket_fields)
    {
-      $this->ticket_fields = collect($ticket_fields);
+      $this->ticket_fields = $ticket_fields;
    }
 
-   protected function buildHeader($sheet)
+   protected function generateResources()
    {
-      $sheet->row(1, $this::HEADERS_ROW_1);
-      $sheet->row(2, $this::HEADERS_ROW_2);
-
-      $sheet->mergeCells("R1:T1");
-      foreach (range("A","Q") as $char) {
-         $sheet->mergeCells($char."1:".$char."2");
-      }
-
-      $style = [
-         'alignment' => [
-              'horizontal' => 'center',
-         ],
-         'font' => [
-            'bold' => true
-         ]
-      ];
-      $sheet->getStyle("A1:T1")->applyFromArray($style);
-      $sheet->getStyle("A2:T2")->applyFromArray($style);
+      return $this->generateTicketFields();
    }
 
-   protected function buildBody($sheet)
+   protected function mergeHeaderRows()
+   {
+      $this->sheet->mergeCells("R1:T1");
+      foreach (range("A","Q") as $char) {
+         $this->sheet->mergeCells($char."1:".$char."2");
+      }
+   }
+
+   protected function buildBody()
    {
       $self = $this;
 
-      $current_row = self::STARTING_ROW;
+      $current_row = $this->getStartingRow();
       $ticket_fields_num = 1;
-      collect($this->ticket_fields)->each(function($ticket_field) use (&$self, &$sheet, &$current_row, &$ticket_fields_num) {
+      collect($this->ticket_fields)->each(function($ticket_field) use (&$self, &$current_row, &$ticket_fields_num) {
          $initial_contents = [
                   "A" => $ticket_fields_num,
                   "B" => $ticket_field->type,
@@ -118,16 +90,33 @@ class ExcelTicketField extends ResourceExcel
                   $row_contents = $custom_field_option_contents;
                }
 
-               $self->setCell($sheet, $row_contents, $current_row);
+               $self->setCell($row_contents, $current_row);
                $current_row++;
             }
          } else {
-            $self->setCell($sheet, $initial_contents, $current_row);
+            $self->setCell($initial_contents, $current_row);
             $current_row++;
          }
 
          $ticket_fields_num++;
       });
       // dd('aloha');
+   }
+
+   private function generateTicketFields()
+   {
+      if (count($this->ticket_fields) > 0) {
+         return $this;
+      }
+
+      $client = $this->client;
+
+      // Cache ticket fields for testing purpose
+      $ticket_fields_response = Cache::remember('ticket_fields_mock', 60, function() use ($client) {
+         return $client->ticketFields()->findAll(['page' => 1]);
+      });
+      $this->setTicketFields($ticket_fields_response->ticket_fields);
+
+      return $this;
    }
 }

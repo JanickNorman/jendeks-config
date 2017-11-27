@@ -15,6 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('login', 'ZendeskLoginController@sourceLogin');
 Route::prefix('excel')->group(function() {
    Route::get('ticketfields', "ExcelTicketFieldsController@home")->name('excelTicketFields');
    Route::post('ticketfields/download', "ExcelTicketFieldsController@download");

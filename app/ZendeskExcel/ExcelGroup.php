@@ -2,32 +2,23 @@
 
 namespace App\ZendeskExcel;
 
+use Zendesk\API\HttpClient as ZendeskAPI;
 use \Excel;
-use Maatwebsite\Excel\Writers\LaravelExcelWriter;
+use \Cache;
 
 class ExcelGroup extends ResourceExcel
 {
-   const HEADERS_ROW_1 = ["No", "Name"];
-
-   const STARTING_ROW = 2;
+   protected $headers = [
+      ["No", "Name"]
+   ];
 
    public $groups;
 
-   public function __construct($groups_response = [])
+   public function __construct(ZendeskAPI $client, $groups_response = [])
    {
-      $this->groups = isset($groups_response->groups) ? collect($groups_response->groups) : [];
-   }
+      parent::__construct($client);
 
-   public function toExcel(): LaravelExcelWriter
-   {
-      $self = $this;
-
-      return Excel::create("template:treesdemo1:groups", function($excel)  use ($self) {
-         $excel->sheet("template--groups", function($sheet) use ($self) {
-            $self->buildHeader($sheet);
-            $self->buildBody($sheet);
-         });
-      });
+      $this->groups = isset($groups_response->groups) ? $groups_response->groups : [];
    }
 
    public function read($filepath): Array
@@ -40,37 +31,44 @@ class ExcelGroup extends ResourceExcel
       $this->groups = $groups;
    }
 
-   protected function buildHeader($sheet)
+   protected function generateResources()
    {
-      $sheet->row(1, $this::HEADERS_ROW_1);
-
-      $style = [
-         'alignment' => [
-            'horizontal' => 'center',
-         ],
-         'font' => [
-            'bold' => true
-         ]
-      ];
-      $sheet->getStyle("A1:B1")->applyFromArray($style);
+      return $this->generateGroups();
    }
 
-   protected function buildBody($sheet)
+   protected function buildBody()
    {
       $self = $this;
 
-      $current_group_row = self::STARTING_ROW;
+      $current_group_row = $this->getStartingRow();
       $groups_num = 1;
       $next_group_row = $current_group_row + 1;
-      $this->groups->each(function($group) use (&$self, &$sheet, &$current_group_row, &$groups_num, &$next_group_row) {
+      collect($this->groups)->each(function($group) use (&$self, &$current_group_row, &$groups_num, &$next_group_row) {
          $initial_contents = [
             "A" => $groups_num,
             "B" => $group->name
          ];
-         $self->setCell($sheet, $initial_contents, $current_group_row);
+         $self->setCell($initial_contents, $current_group_row);
 
          $current_group_row++;
          $groups_num++;
       });
+   }
+
+   private function generateGroups()
+   {
+      if (count($this->groups) > 0) {
+         return $this;
+      }
+
+      $client = $this->client;
+
+      // Cache ticket fields for testing purpose
+      $groups_response = Cache::remember('groups_mock', 60, function() use ($client) {
+         return $client->groups()->findAll(['page' => 1]);
+      });
+      $this->setGroups($groups_response->groups);
+
+      return $this;
    }
 }

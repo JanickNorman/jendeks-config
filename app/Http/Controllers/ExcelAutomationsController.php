@@ -9,22 +9,12 @@ use App\ZendeskExcel\ExcelAutomation;
 
 class ExcelAutomationsController extends Controller
 {
-   public function home()
-   {
-      return view('excel.automations');
-   }
+   protected $type = "automations";
 
    public function download()
    {
-      $client = new ZendeskAPI("treesdemo1");
-      $client->setHeader('Authorization', "basic ZWxkaWVuLmhhc21hbnRvQHRyZWVzc29sdXRpb25zLmNvbTpXM2xjb21lMTIz");
-
-      // Cache ticket fields for testing purpose
-      $automations_response = Cache::remember('automations_mock', 60, function() use ($client) {
-         return $client->automations()->findAll(['page' => 1]);
-      });
-      $excelAutomation = new ExcelAutomation($automations_response);
-      // dd($excelAutomation->toExcel()->getActiveSheet()->toArray());
+      $client = app('zendesk.source.auth');
+      $excelAutomation = new ExcelAutomation($client);
       return $excelAutomation->toExcel()->download('xlsx');
    }
 

@@ -2,34 +2,24 @@
 
 namespace App\ZendeskExcel;
 
+use Zendesk\API\HttpClient as ZendeskAPI;
 use \Excel;
-use Maatwebsite\Excel\Writers\LaravelExcelWriter;
+use \Cache;
 
 class ExcelAutomation extends ResourceExcel
 {
-   const HEADERS_ROW_1 = ["No", "Title", "Active", "Position", "Actions", null, "Conditions", null, null, null];
-
-   const HEADERS_ROW_2 = [null, null, null, null, "Field", "Value", "Type", "Field", "Operator", "Value"];
-
-   const STARTING_ROW = 3;
+   protected $headers = [
+      ["No", "Title", "Active", "Position", "Actions", null, "Conditions", null, null, null],
+      [null, null, null, null, "Field", "Value", "Type", "Field", "Operator", "Value"]
+   ];
 
    public $automations;
 
-   public function __construct($automations_response = [])
+   public function __construct(ZendeskAPI $client, $automations_response = [])
    {
-      $this->automations = isset($automations_response->automations) ? collect($automations_response->automations) : [];
-   }
+      parent::__construct($client);
 
-   public function toExcel(): LaravelExcelWriter
-   {
-      $self = $this;
-
-      return Excel::create("template:treesdemo1:automations", function($excel)  use ($self) {
-         $excel->sheet("template--automations", function($sheet) use ($self) {
-            $self->buildHeader($sheet);
-            $self->buildBody($sheet);
-         });
-      });
+      $this->automations = isset($automations_response->automations) ? $automations_response->automations : [];
    }
 
    public function read($filepath): Array
@@ -42,63 +32,54 @@ class ExcelAutomation extends ResourceExcel
       $this->automations = $automations;
    }
 
-   protected function buildHeader($sheet)
+   protected function generateResources()
    {
-      $sheet->row(1, $this::HEADERS_ROW_1);
-      $sheet->row(2, $this::HEADERS_ROW_2);
-
-      $sheet->mergeCells("E1:F1");
-      $sheet->mergeCells("G1:J1");
-      foreach (range("A","D") as $char) {
-         $sheet->mergeCells($char."1:".$char."2");
-      }
-
-      $style = [
-         'alignment' => [
-            'horizontal' => 'center',
-         ],
-         'font' => [
-            'bold' => true
-         ]
-      ];
-      $sheet->getStyle("A1:J1")->applyFromArray($style);
-      $sheet->getStyle("A2:J2")->applyFromArray($style);
+      return $this->generateAutomations();
    }
 
-   protected function buildBody($sheet)
+   protected function mergeHeaderRows()
+   {
+      $this->sheet->mergeCells("E1:F1");
+      $this->sheet->mergeCells("G1:J1");
+      foreach (range("A","D") as $char) {
+         $this->sheet->mergeCells($char."1:".$char."2");
+      }
+   }
+
+   protected function buildBody()
    {
       $self = $this;
 
-      $current_automation_row = self::STARTING_ROW;
+      $current_automation_row = $this->getStartingRow();
       $automations_num = 1;
       $next_automation_row = $current_automation_row + 1;
-      $this->automations->each(function($automation) use (&$self, &$sheet, &$current_automation_row, &$automations_num, &$next_automation_row) {
+      collect($this->automations)->each(function($automation) use (&$self, &$current_automation_row, &$automations_num, &$next_automation_row) {
          $initial_contents = [
             "A" => $automations_num,
             "B" => $automation->title,
             "C" => $automation->active,
             "D" => $automation->position,
          ];
-         $self->setCell($sheet, $initial_contents, $current_automation_row);
+         $self->setCell($initial_contents, $current_automation_row);
 
          // Render actions
          $action_render_row = $current_automation_row;
          foreach ($automation->actions as $action) {
-            $self->setCell($sheet, ["E" => $action->field], $action_render_row);
+            $self->setCell(["E" => $this->display->rulesFieldFormatter($action->field)], $action_render_row);
 
             if (is_array($action->value)) {
                foreach ($action->value as $value) {
                   $contents = [
-                     "F" => $value
+                     "F" => $this->display->rulesValueFormatter($action->field, $value)
                   ];
-                  $self->setCell($sheet, $contents, $action_render_row);
+                  $self->setCell($contents, $action_render_row);
                   $action_render_row++;
                }
             } else {
                $contents = [
-                  "F" => $action->value
+                  "F" => $this->display->rulesValueFormatter($action->field, $action->value)
                ];
-               $self->setCell($sheet, $contents, $action_render_row);
+               $self->setCell($contents, $action_render_row);
                $action_render_row++;
             }
 
@@ -114,11 +95,11 @@ class ExcelAutomation extends ResourceExcel
             foreach ($conditions as $condition) {
                $contents = [
                   "G" => $type,
-                  "H" => $condition->field,
+                  "H" => $this->display->rulesFieldFormatter($condition->field),
                   "I" => $condition->operator,
-                  "J" => $condition->value
+                  "J" => $this->display->rulesValueFormatter($condition->field, $condition->value)
                ];
-               $self->setCell($sheet, $contents, $condition_render_row);
+               $self->setCell($contents, $condition_render_row);
                $condition_render_row++;
             }
 
@@ -127,8 +108,26 @@ class ExcelAutomation extends ResourceExcel
             }
          }
 
+         $this->styleCurrentRow($current_automation_row, $next_automation_row);
          $current_automation_row = $next_automation_row;
          $automations_num++;
       });
+   }
+
+   private function generateAutomations()
+   {
+      if (count($this->automations) > 0) {
+         return $this;
+      }
+
+      $client = $this->client;
+
+      // Cache ticket fields for testing purpose
+      $automations_response = Cache::remember('automations_mock', 60, function() use ($client) {
+         return $client->automations()->findAll(['page' => 1]);
+      });
+      $this->setAutomations($automations_response->automations);
+
+      return $this;
    }
 }

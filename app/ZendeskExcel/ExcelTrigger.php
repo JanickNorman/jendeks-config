@@ -2,23 +2,25 @@
 
 namespace App\ZendeskExcel;
 
-use \Validator;
-use Maatwebsite\Excel\Writers\LaravelExcelWriter;
-use \Excel as Excel;
+use Zendesk\API\HttpClient as ZendeskAPI;
+use Zendesk\API\Resources\Core\Views;
+use \Excel;
+use \Cache;
 
 class ExcelTrigger extends ResourceExcel
 {
-   const HEADERS_ROW_1 = ["No", "Title", "Active", "Position", "Actions", null, "Conditions", null, null, null];
-
-   const HEADERS_ROW_2 = [null, null, null, null, "Field", "Value", "Type", "Field", "Operator", "Value"];
-
-   const STARTING_ROW = 3;
+   protected $headers = [
+      ["No", "Title", "Active", "Position", "Actions", null, "Conditions", null, null, null],
+      [null, null, null, null, "Field", "Value", "Type", "Field", "Operator", "Value"]
+   ];
 
    private $triggers = [];
 
-   public function __construct($triggers_response = [])
+   public function __construct(ZendeskAPI $client, $triggers_response = [])
    {
-      $this->triggers = isset($triggers_response->triggers) ? collect($triggers_response->triggers) : [];
+      parent::__construct($client);
+
+      $this->triggers = isset($triggers_response->triggers) ? $triggers_response->triggers : [];
    }
 
    public static function parse($filepath)
@@ -28,7 +30,7 @@ class ExcelTrigger extends ResourceExcel
       // $excel = Excel::load($filepath, function($reader) use (&$triggers) {
       //    $current_action = [];
       //
-      //    $reader->noHeading()->skipRows(2)->limitColumns(9)->each(function($sheet, $key) use (&$triggers, &$current_action) {
+      //    $reader->noHeading()->skipRows(2)->limitColumns(9)->each(function($key) use (&$triggers, &$current_action) {
       //       $sheet = $sheet->toArray();
       //
       //       $columns['title'] = $sheet[0];
@@ -95,18 +97,6 @@ class ExcelTrigger extends ResourceExcel
       // return $triggers;
    }
 
-   public function toExcel(): LaravelExcelWriter
-   {
-      $self = $this;
-
-      return Excel::create("template:treesdemo1:triggers", function($excel)  use ($self) {
-         $excel->sheet("template--triggers", function($sheet) use ($self) {
-            $self->buildHeader($sheet);
-            $self->buildBody($sheet);
-         });
-      });
-   }
-
    public function read($filepath): Array
    {
       return [];
@@ -117,63 +107,54 @@ class ExcelTrigger extends ResourceExcel
       $this->triggers = $triggers;
    }
 
-   protected function buildHeader($sheet)
+   protected function generateResources()
    {
-      $sheet->row(1, $this::HEADERS_ROW_1);
-      $sheet->row(2, $this::HEADERS_ROW_2);
-
-      $sheet->mergeCells("E1:F1");
-      $sheet->mergeCells("G1:J1");
-      foreach (range("A","D") as $char) {
-         $sheet->mergeCells($char."1:".$char."2");
-      }
-
-      $style = [
-         'alignment' => [
-            'horizontal' => 'center',
-         ],
-         'font' => [
-            'bold' => true
-         ]
-      ];
-      $sheet->getStyle("A1:J1")->applyFromArray($style);
-      $sheet->getStyle("A2:J2")->applyFromArray($style);
+      return $this->generateTriggers();
    }
 
-   protected function buildBody($sheet)
+   protected function mergeHeaderRows()
+   {
+      $this->sheet->mergeCells("E1:F1");
+      $this->sheet->mergeCells("G1:J1");
+      foreach (range("A","D") as $char) {
+         $this->sheet->mergeCells($char."1:".$char."2");
+      }
+   }
+
+   protected function buildBody()
    {
       $self = $this;
 
-      $current_trigger_row = self::STARTING_ROW;
+      $current_trigger_row = $this->getStartingRow();
       $triggers_num = 1;
       $next_trigger_row = $current_trigger_row + 1;
-      $this->triggers->each(function($trigger) use (&$self, &$sheet, &$current_trigger_row, &$triggers_num, &$next_trigger_row) {
+      collect($this->triggers)->each(function($trigger) use (&$self, &$current_trigger_row, &$triggers_num, &$next_trigger_row) {
          $initial_contents = [
             "A" => $triggers_num,
             "B" => $trigger->title,
             "C" => $trigger->active,
             "D" => $trigger->position,
          ];
-         $self->setCell($sheet, $initial_contents, $current_trigger_row);
+         $self->setCell($initial_contents, $current_trigger_row);
 
          // Render actions
          $action_render_row = $current_trigger_row;
          foreach ($trigger->actions as $action) {
-            $self->setCell($sheet, ["E" => $action->field], $action_render_row);
+            $self->setCell(["E" => $this->display->rulesFieldFormatter($action->field)], $action_render_row);
 
             if (is_array($action->value)) {
                foreach ($action->value as $value) {
                   $contents = [
-                     "F" => $value
+                     "F" => $this->display->rulesValueFormatter($action->field, $value)
                   ];
-                  $self->setCell($sheet, $contents, $action_render_row);
+                  $self->setCell($contents, $action_render_row);
                   $action_render_row++;
                }
             } else {
                $contents = [
-                  "F" => $action->value
+                  "F" => $this->display->rulesValueFormatter($action->field, $action->value)
                ];
-               $self->setCell($sheet, $contents, $action_render_row);
+               $self->setCell($contents, $action_render_row);
                $action_render_row++;
             }
 
@@ -189,11 +170,11 @@ class ExcelTrigger extends ResourceExcel
             foreach ($conditions as $condition) {
                $contents = [
                   "G" => $type,
-                  "H" => $condition->field,
+                  "H" => $this->display->rulesFieldFormatter($condition->field),
                   "I" => $condition->operator,
-                  "J" => $condition->value
+                  "J" => $this->display->rulesValueFormatter($condition->field, $condition->value)
                ];
-               $self->setCell($sheet, $contents, $condition_render_row);
+               $self->setCell($contents, $condition_render_row);
                $condition_render_row++;
             }
 
@@ -202,8 +183,26 @@ class ExcelTrigger extends ResourceExcel
             }
          }
 
+         $this->styleCurrentRow($current_trigger_row, $next_trigger_row);
          $current_trigger_row = $next_trigger_row;
          $triggers_num++;
       });
+   }
+
+   private function generateTriggers()
+   {
+      if (count($this->triggers) > 0) {
+         return $this;
+      }
+
+      $client = $this->client;
+
+      // Cache ticket fields for testing purpose
+      $triggers_response = Cache::remember('triggers_mock', 60, function() use ($client) {
+         return $client->triggers()->findAll(['page' => 1]);
+      });
+      $this->setTriggers($triggers_response->triggers);
+
+      return $this;
    }
 }

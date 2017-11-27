@@ -7,6 +7,8 @@ use Zendesk\API\HttpClient as ZendeskAPI;
 
 class ExcelBrandsController extends Controller
 {
+   protected $type = "brands";
+
    public function read()
    {
       $client = new ZendeskAPI('treesdemo1');

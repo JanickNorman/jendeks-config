@@ -9,10 +9,7 @@ use App\ZendeskExcel\ExcelTrigger;
 
 class ExcelTriggersController extends Controller
 {
-   public function home()
-   {
-      return view('excel.triggers');
-   }
+   protected $type = "triggers";
 
    public function read()
    {
@@ -22,16 +19,8 @@ class ExcelTriggersController extends Controller
 
    public function download()
    {
-      $client = new ZendeskAPI("treesdemo1");
-      $client->setHeader('Authorization', "basic ZWxkaWVuLmhhc21hbnRvQHRyZWVzc29sdXRpb25zLmNvbTpXM2xjb21lMTIz");
-
-      // Cache ticket fields for testing purpose
-      $trigger_response = Cache::remember('trigger_mock', 60, function() use ($client) {
-         return $client->triggers()->findAll(['page' => 1]);
-      });
-
-      $excelTrigger = new ExcelTrigger($trigger_response);
-      // dd($excelTrigger->toExcel()->getActiveSheet()->toArray());
+      $client = app('zendesk.source.auth');
+      $excelTrigger = new ExcelTrigger($client);
       return $excelTrigger->toExcel()->download('xlsx');
    }
 

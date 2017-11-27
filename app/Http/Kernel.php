@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use App\Http\Middleware\ZendeskDestinationAuth;
 
 class Kernel extends HttpKernel
 {
@@ -57,5 +58,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'zendesk.source.auth' => \App\Http\Middleware\ZendeskSourceAuth::class,
+        'zendesk.destination.auth' => \App\Http\Middleware\ZendeskDestinationAuth::class
     ];
 }

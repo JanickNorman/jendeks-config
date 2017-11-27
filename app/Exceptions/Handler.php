@@ -49,9 +49,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-      if ($exception instanceof ApiResponseException) {
-         return back()->withError("Couldn't authenticate you");
-      }
+      // if ($exception instanceof ApiResponseException) {
+      //    return back()->withZendeskerror($exception->getErrorDetails());
+      // }
 
         return parent::render($request, $exception);
     }

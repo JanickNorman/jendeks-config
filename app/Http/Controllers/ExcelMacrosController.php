@@ -9,10 +9,7 @@ use App\ZendeskExcel\ExcelMacro;
 
 class ExcelMacrosController extends Controller
 {
-   public function home()
-   {
-      return view('excel.macros');
-   }
+   protected $type = "macros";
 
    public function read()
    {
@@ -22,16 +19,8 @@ class ExcelMacrosController extends Controller
 
    public function download()
    {
-      $client = new ZendeskAPI("treesdemo1");
-      $client->setHeader('Authorization', "basic ZWxkaWVuLmhhc21hbnRvQHRyZWVzc29sdXRpb25zLmNvbTpXM2xjb21lMTIz");
-
-      // Cache ticket fields for testing purpose
-      $macros_response = Cache::remember('macros_mock', 60, function() use ($client) {
-         return $client->macros()->findAll(['page' => 1]);
-      });
-
-      $excelMacro = new ExcelMacro($macros_response);
-      // dd($excelGroup->toExcel()->getActiveSheet()->toArray());
+      $client = app('zendesk.source.auth');
+      $excelMacro = new ExcelMacro($client);
       return $excelMacro->toExcel()->download('xlsx');
    }
 

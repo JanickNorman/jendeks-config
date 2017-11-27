@@ -51,37 +51,45 @@
                 </ul>
             </div>
          @endif
+         @if(session()->has('success'))
+             <div class="alert alert-success">
+                 {!! session()->get('success') !!}
+             </div>
+         @endif
          <div class="col-md-6">
             <div>
                <h3>Zendesk Source</h3>
+               @if (Session::has('zendesk_source_auth'))
+                  Currently Logged In to <b>{{ Session::get('zendesk_source_auth.subdomain') }}.zendesk.com</b>
+               @else
+                  <em>Not Logged In</em>
+               @endif
             </div>
             <div class="row">
-               <form>
+               <form action="/login" method="post" autocomplete="on">
                   <div class="form-group col-md-12">
-                     <label for="exampleInputEmail1">Subdomain</label>
-                     <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter subdomain">
+                     <label for="source_subdomain">Subdomain</label>
+                     <input type="name" class="form-control" id="source_domain" name="source_subdomain" placeholder="Enter subdomain">
                   </div>
                   <div class="form-group col-md-6">
-                     <label for="exampleInputEmail1">Username</label>
-                     <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                     <label for="source_username">Username</label>
+                     <input type="name" class="form-control" id="source_username" name="source_username" placeholder="Enter username">
                   </div>
                   <div class="form-group col-md-6">
-                     <label for="exampleInputPassword1">Password</label>
-                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                     <label for="source_password">Password</label>
+                     <input type="password" class="form-control" id="source_password" name="source_password" placeholder="Password">
+                  </div>
+                  <div class="col-sm-2 pull-right">
+                     <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Log In</button>
+                     </div>
                   </div>
                </form>
-               <div class="col-xs-6">
+               <div class="col-sm-9">
                   <form action="{!! url()->current() !!}/download" method="post">
                      <button name="mysubmitbutton" id="mysubmitbutton" type="submit" class="btn btn-secondary">
                         Download excel template
                      </button>
-                  </form>
-               </div>
-               <div class="col-xs-6">
-                  <form class="" action="index.html" method="post">
-                     <div class="form-group pull-right">
-                        <button type="submit" class="btn btn-primary">Log In</button>
-                     </div>
                   </form>
                </div>
             </div>
@@ -91,6 +99,11 @@
          <div class="col-md-6">
             <div>
                <h3>Zendesk Destination</h3>
+               @if (Session::has('zendesk_destination_auth'))
+                  Currently Logged In to <b>{{ Session::get('zendesk_destination_auth.subdomain') }}.zendesk.com</b>
+               @else
+                  <em>Not Logged In</em>
+               @endif
             </div>
             <form class="row">
                <div class="form-group col-md-12">
@@ -128,7 +141,6 @@
       </div>
 
       <div class="row">
-         {!! Session::get('error') !!}
          <h4>@yield('zendesk_config_name') result</h4>
          @yield('content')
       </div>

@@ -10,28 +10,12 @@ use \Cache;
 
 class ExcelTicketFieldsController extends Controller
 {
-   public function home()
-   {
-      return view('excel.ticketfields');
-   }
-
-   public function show()
-   {
-
-   }
+   protected $type = "ticketfields";
 
    public function download()
    {
-      $client = new ZendeskAPI("treesdemo1");
-      $client->setHeader('Authorization', "basic ZWxkaWVuLmhhc21hbnRvQHRyZWVzc29sdXRpb25zLmNvbTpXM2xjb21lMTIz");
-
-      // Cache ticket fields for testing purpose
-      $ticket_fields_response = Cache::remember('ticket_fields_mock', 60, function() use ($client) {
-         return $client->ticketFields()->findAll(['page' => 1]);
-      });
-
-      $excelTicketField = new ExcelTicketField($ticket_fields_response);
-      // dd($excelTicketField->toExcel()->getActiveSheet()->toArray());
+      $client = app('zendesk.source.auth');
+      $excelTicketField = new ExcelTicketField($client);
       return $excelTicketField->toExcel()->download('xlsx');
    }
 
