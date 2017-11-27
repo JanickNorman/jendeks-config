@@ -29,10 +29,12 @@ abstract class ResourceExcel
    public function toExcel(): LaravelExcelWriter
    {
       $self = $this;
+      $subdomain = $this->client->getSubdomain();
 
       $this->generateResources();
 
-      return Excel::create("template:treesdemo1:$this->name", function($excel)  use ($self) {
+
+      return Excel::create("template:$subdomain:$this->name", function($excel)  use ($self) {
          $excel->sheet("template--$self->name", function($sheet) use ($self) {
             $self->sheet = $sheet;
 
