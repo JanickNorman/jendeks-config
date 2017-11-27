@@ -179,6 +179,11 @@ class DisplayFormatter
          return "Custom Field: " . $this->displayRepository->getTicketFieldTitle($customFieldId);
       }
 
+      if ($this->isTicketField($field)) {
+         $ticket_field_id = $this->retrieveTicketFieldId($field);
+         return $this->displayRepository->getTicketFieldTitle($ticket_field_id);
+      }
+
       if ($this->isOrganizationField($field)) {
          $organizationFieldKey = $this->retrieveOrganizationFieldKey($field);
          return "Organization Custom Field: " . $this->displayRepository->getOrganizationFieldTitleByKey($organizationFieldKey);

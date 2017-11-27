@@ -73,9 +73,9 @@ class ExcelSLA extends ResourceExcel
             foreach ($filters as $filter) {
                $contents = [
                   "E" => $type,
-                  "F" => $self->display->fieldFormatter($filter->field),
+                  "F" => $self->display->rulesFieldFormatter($filter->field),
                   "G" => $filter->operator,
-                  "H" => $self->display->valueFormatter($filter->field, $filter->value)
+                  "H" => $self->display->rulesValueFormatter($filter->field, $filter->value)
                ];
                $self->setCell($contents, $filter_render_row);
                $filter_render_row++;

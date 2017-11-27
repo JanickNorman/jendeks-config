@@ -103,7 +103,7 @@ class ExcelMacro extends ResourceExcel
             if (isset($macro->restriction->ids)) {
                $restriction_ids_render_row = $current_macro_row;
                foreach ($macro->restriction->ids as $id) {
-                  $self->setCell(["J" => $this->display->macroRestrictionValueFormatter("Group", $id)], $restriction_ids_render_row);
+                  $self->setCell(["J" => $this->display->restrictionValueFormatter("Group", $id)], $restriction_ids_render_row);
                   $restriction_ids_render_row++;
 
                   // Get the next macro row
