@@ -16,6 +16,8 @@ class ExcelTicketField extends ResourceExcel
 
    public $ticket_fields;
 
+   protected $name = "ticket fields";
+
    public function __construct(ZendeskAPI $client, $ticket_fields_response = [])
    {
       parent::__construct($client);
@@ -53,6 +55,8 @@ class ExcelTicketField extends ResourceExcel
       $current_row = $this->getStartingRow();
       $ticket_fields_num = 1;
       collect($this->ticket_fields)->each(function($ticket_field) use (&$self, &$current_row, &$ticket_fields_num) {
+         $initial_row = $current_row;
+
          $initial_contents = [
                   "A" => $ticket_fields_num,
                   "B" => $ticket_field->type,
@@ -98,6 +102,8 @@ class ExcelTicketField extends ResourceExcel
             $current_row++;
          }
 
+         $last_row = $current_row;
+         $this->styleCurrentRow($initial_row, $last_row);
          $ticket_fields_num++;
       });
       // dd('aloha');

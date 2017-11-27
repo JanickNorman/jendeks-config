@@ -64,7 +64,7 @@ abstract class ResourceExcel
       ];
 
       $highestColumn = $this->getHighestColumn();
-      $this->sheet->setBorder("A1:$highestColumn".count($this->headers), 'thick');
+      $this->sheet->setBorder("A1:$highestColumn".count($this->headers), 'thin');
       foreach ($this->headers as $key => $header) {
          $row_num = (int) $key + 1;
          $this->sheet->getStyle("A$row_num:".$highestColumn."$row_num")->applyFromArray($style);

@@ -15,6 +15,8 @@ class ExcelTicketForm extends ResourceExcel
 
    public $ticket_forms;
 
+   protected $name = "ticket forms";
+
    public function __construct(ZendeskAPI $client, $ticket_forms_response = [])
    {
       parent::__construct($client);

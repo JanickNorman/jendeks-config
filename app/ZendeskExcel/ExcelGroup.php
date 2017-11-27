@@ -14,6 +14,8 @@ class ExcelGroup extends ResourceExcel
 
    public $groups;
 
+   protected $name = "groups";
+
    public function __construct(ZendeskAPI $client, $groups_response = [])
    {
       parent::__construct($client);

@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('excel/ticketfields');
 });
 
 Route::post('login', 'ZendeskLoginController@sourceLogin');

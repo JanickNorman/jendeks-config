@@ -15,6 +15,8 @@ class ExcelAutomation extends ResourceExcel
 
    public $automations;
 
+   protected $name = "automations";
+
    public function __construct(ZendeskAPI $client, $automations_response = [])
    {
       parent::__construct($client);

@@ -8,8 +8,6 @@ use Zendesk\API\HttpClient as ZendeskAPI;
 
 class ExcelSLA extends ResourceExcel
 {
-   protected $name = "sla";
-
    protected $headers = [
       ["No", "Title", "Description", "Position", "Filter", null, null, null, "Policy Metrics", null, null, null],
       [null, null, null, null, "Type", "Field", "Operator", "Value", "Priority", "Metric", "Target", "Business Hours"]
@@ -18,6 +16,8 @@ class ExcelSLA extends ResourceExcel
    protected $sheet;
 
    public $slas;
+
+   protected $name = "slas";
 
    public function __construct(ZendeskAPI $client, $slas_response = [])
    {

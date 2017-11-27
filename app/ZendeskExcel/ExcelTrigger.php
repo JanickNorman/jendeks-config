@@ -16,6 +16,8 @@ class ExcelTrigger extends ResourceExcel
 
    private $triggers = [];
 
+   protected $name = "triggers";
+
    public function __construct(ZendeskAPI $client, $triggers_response = [])
    {
       parent::__construct($client);

@@ -15,6 +15,8 @@ class ExcelMacro extends ResourceExcel
 
    public $macros;
 
+   protected $name = "macros";
+
    public function __construct(ZendeskAPI $client, $macros_response = [])
    {
       parent::__construct($client);

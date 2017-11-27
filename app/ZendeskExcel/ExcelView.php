@@ -15,6 +15,8 @@ class ExcelView extends ResourceExcel
 
    public $views;
 
+   protected $name = "views";
+
    public function __construct(ZendeskAPI $client, $views_response = [])
    {
       parent::__construct($client);
@@ -119,7 +121,7 @@ class ExcelView extends ResourceExcel
             }
          }
 
-         $this->styleCurrentRow($current_view_row, $next_view_row);         
+         $this->styleCurrentRow($current_view_row, $next_view_row);
          $current_view_row = $next_view_row;
          $views_num++;
       });
