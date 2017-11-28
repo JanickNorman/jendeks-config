@@ -29,6 +29,8 @@ class ZendeskSourceAuth
          $this->client = new ZendeskAPI("$subdomain");
          $this->client->setHeader("Authorization", $token);
 
+         Cache::flush();
+
          app()['zendesk.source.auth'] = $this->client;
 
          $this->cacheResources();
