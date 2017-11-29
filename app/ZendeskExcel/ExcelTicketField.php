@@ -135,7 +135,7 @@ class ExcelTicketField extends ResourceExcel
          } while ($response->next_page !== null);
          return $ticket_fields;
       });
-      $this->setTicketFields($ticketFields);
+      $this->setTicketFields($ticket_fields);
 
       return $this;
    }
