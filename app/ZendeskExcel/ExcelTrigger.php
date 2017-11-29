@@ -200,10 +200,23 @@ class ExcelTrigger extends ResourceExcel
       $client = $this->client;
 
       // Cache ticket fields for testing purpose
-      $triggers_response = Cache::remember('triggers_mock', 60, function() use ($client) {
-         return $client->triggers()->findAll(['page' => 1]);
+      // $triggers_response = Cache::remember('triggers_mock', 60, function() use ($client) {
+      //    return $client->triggers()->findAll(['page' => 1]);
+      // });
+      // $this->setTriggers($triggers_response->triggers);
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $triggers = Cache::remember("$subdomain.triggers", 60, function() use ($client) {
+         $triggers = [];
+         $page = 1;
+         do {
+            $response = $client->triggers()->findAll(['page' => $page]);
+            $triggers = array_merge($triggers, $response->triggers);
+            $page++;
+         } while ($response->next_page !== null);
+         return $triggers;
       });
-      $this->setTriggers($triggers_response->triggers);
+      $this->setTriggers($triggers);
 
       return $this;
    }

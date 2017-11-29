@@ -138,10 +138,24 @@ class ExcelView extends ResourceExcel
       $client = $this->client;
 
       // Cache ticket fields for testing purpose
-      $views_response = Cache::remember('views_mock', 60, function() use ($client) {
-         return $client->views()->findAll(['page' => 1]);
+      // $views_response = Cache::remember('views_mock', 60, function() use ($client) {
+      //    return $client->views()->findAll(['page' => 1]);
+      // });
+      // $this->setViews($views_response->views);
+
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $views = Cache::remember("$subdomain.views", 60, function() use ($client) {
+         $views = [];
+         $page = 1;
+         do {
+            $response = $client->views()->findAll(['page' => $page]);
+            $views = array_merge($views, $response->views);
+            $page++;
+         } while ($response->next_page !== null);
+         return $views;
       });
-      $this->setViews($views_response->views);
+      $this->setViews($views);
 
       return $this;
    }

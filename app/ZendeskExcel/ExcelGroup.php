@@ -71,6 +71,20 @@ class ExcelGroup extends ResourceExcel
       });
       $this->setGroups($groups_response->groups);
 
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $groups = Cache::remember("$subdomain.groups", 60, function() use ($client) {
+         $groups = [];
+         $page = 1;
+         do {
+            $response = $client->groups()->findAll(['page' => $page]);
+            $groups = array_merge($groups, $response->groups);
+            $page++;
+         } while ($response->next_page !== null);
+         return $groups;
+      });
+      $this->setGroups($groups);
+
       return $this;
    }
 }

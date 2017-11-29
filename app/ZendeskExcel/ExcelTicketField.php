@@ -118,10 +118,24 @@ class ExcelTicketField extends ResourceExcel
       $client = $this->client;
 
       // Cache ticket fields for testing purpose
-      $ticket_fields_response = Cache::remember('ticket_fields_mock', 60, function() use ($client) {
-         return $client->ticketFields()->findAll(['page' => 1]);
+      // $ticket_fields_response = Cache::remember('ticket_fields_mock', 60, function() use ($client) {
+      //    return $client->ticketFields()->findAll(['page' => 1]);
+      // });
+      // $this->setTicketFields($ticket_fields_response->ticket_fields);
+      //
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $ticket_fields = Cache::remember("$subdomain.ticket_fields", 60, function() use ($client) {
+         $ticket_fields = [];
+         $page = 1;
+         do {
+            $response = $client->ticketFields()->findAll(['page' => $page]);
+            $ticket_fields = array_merge($ticket_fields, $response->ticket_fields);
+            $page++;
+         } while ($response->next_page !== null);
+         return $ticket_fields;
       });
-      $this->setTicketFields($ticket_fields_response->ticket_fields);
+      $this->setTicketFields($ticketFields);
 
       return $this;
    }

@@ -129,10 +129,24 @@ class ExcelMacro extends ResourceExcel
       $client = $this->client;
 
       // Cache ticket fields for testing purpose
-      $macros_response = Cache::remember('macros_mock', 60, function() use ($client) {
-         return $client->macros()->findAll(['page' => 1]);
+      // $macros_response = Cache::remember('macros_mock', 60, function() use ($client) {
+      //    return $client->macros()->findAll(['page' => 1]);
+      // });
+      // $this->setMacros($macros_response->macros);
+
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $macros = Cache::remember("$subdomain.macros", 60, function() use ($client) {
+         $macros = [];
+         $page = 1;
+         do {
+            $response = $client->macros()->findAll(['page' => $page]);
+            $macros = array_merge($macros, $response->macros);
+            $page++;
+         } while ($response->next_page !== null);
+         return $macros;
       });
-      $this->setMacros($macros_response->macros);
+      $this->setMacros($macros);
 
       return $this;
    }

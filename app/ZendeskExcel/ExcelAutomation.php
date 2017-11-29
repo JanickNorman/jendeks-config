@@ -124,11 +124,26 @@ class ExcelAutomation extends ResourceExcel
 
       $client = $this->client;
 
-      // Cache ticket fields for testing purpose
-      $automations_response = Cache::remember('automations_mock', 60, function() use ($client) {
-         return $client->automations()->findAll(['page' => 1]);
+      // // Cache ticket fields for testing purpose
+      // $automations_response = Cache::remember('automations_mock', 60, function() use ($client) {
+      //    return $client->automations()->findAll(['page' => 1]);
+      // });
+      // $this->setAutomations($automations_response->automations);
+
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $automations = Cache::remember("$subdomain.automations", 60, function() use ($client) {
+         $automations = [];
+         $page = 1;
+         do {
+            $response = $client->automations()->findAll(['page' => $page]);
+            $automations = array_merge($automations, $response->automations);
+            $page++;
+         } while ($response->next_page !== null);
+         return $automations;
       });
-      $this->setAutomations($automations_response->automations);
+      $this->setAutomations($automations);
+
 
       return $this;
    }

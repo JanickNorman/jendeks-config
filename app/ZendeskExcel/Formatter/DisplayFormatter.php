@@ -6,7 +6,7 @@ use App\ZendeskExcel\Formatter\DisplayRepository;
 
 class DisplayFormatter
 {
-   protected $conditionDisplayMapper = [
+   protected $defaultConditionDisplayMapper = [
       "Ticket" => [
          "group_id" => "Group",
          "assignee_id" => "Assignee",
@@ -26,10 +26,11 @@ class DisplayFormatter
          "type" => "Type",
          "status" => "Status",
          "priority" => "Priority",
-         // "description_includes_word" => "Subject text",
+         "description_includes_word" => "Description",
          "satisfaction_score" => "Satisfaction",
 
          // "satisfaction_reason" => "Satisfaction Reason",
+         "satisfaction_reason_code" => "Satisfaction Reason",
 
          // Only in Trigger
          "subject_includes_word" => "Subject text",
@@ -44,8 +45,11 @@ class DisplayFormatter
          "group_stations" => "Group stations",
          "in_business_hours" => "Within business hours?",
 
+         "number_of_incidents" => "Number of incidents",
+         "ticket_due_date" => "Due date",
+
          // Only in SLA
-         // "type_type_id" => ""
+         // "ticket_type_id" => "Type" //bentrok,
          "exact_created_at" => "Created",
 
          // Only in SLA and Views
@@ -58,7 +62,8 @@ class DisplayFormatter
          "updated_at" => "Hours since updated",
          "requester_updated_at" => "Hours since requester update",
          "assignee_updated_at" => "Hours since assignee update",
-         "due_date" => "Hours since due date",
+         // "due_date" => "Hours since due date", In DOCUMENTATION,
+         "due_at" => "Hours since due data", // In REALITY
          "until_due_date" => "Hours until due date",
          "sla_next_breach_at" => "Hours since last SLA breach",
          "until_sla_next_breach_at" => "Hours until next SLA breach",
@@ -72,8 +77,11 @@ class DisplayFormatter
 
          // Only in Trigger
          "requester_twitter_followers_count" => "Number of Twitter followers",
-         "requester_twitter_status_count" => "Number of tweets",
+         // "requester_twitter_status_count" => "Number of tweets", // In DOCUMENTATION
+         "requester_twitter_statuses_count" => "Number of tweets", // In REALITY
          "requester_twitter_verified" => "Is verified by Twitter",
+
+         "requester_time_zone" => "Time zone"
       ],
       "Ticket Sharing" => [
          "received_from" => "Ticket Sharing",
@@ -84,7 +92,7 @@ class DisplayFormatter
       ]
    ];
 
-   protected $actionDisplayMapper = [
+   protected $defaultActionDisplayMapper = [
       "Ticket" => [
          // Trigger, Automation, Macro
          "status" => "Status",
@@ -102,7 +110,12 @@ class DisplayFormatter
 
          // Trigger and Automation
          "satisfaction_score" => "Satisfaction",
-         "cc" => "Add cc"
+         "cc" => "Add cc",
+
+         // Macro
+         "subject" => "Set subject",
+         "comment_value_html" => "Comment/description",
+         "comment_mode_is_public" => "Comment mode"
       ],
       "Notification" => [
          // Trigger and Automation
@@ -118,10 +131,11 @@ class DisplayFormatter
       ]
    ];
 
-   protected $conditionFieldsObjectMapper = [
+   protected $defaultConditionFieldsObjectMapper = [
       // Ticket
       "brand_id" => "brand",
       "ticket_form_id" => "ticket_form",
+      'ticket_type_id' => "ticket_type",
       "group_id" => "group",
       "assignee_id" => "user",
       "requester_id" => "user",
@@ -137,11 +151,14 @@ class DisplayFormatter
       "received_from" => "ticket_sharing",
       "sent_to" => "ticket_sharing",
 
+      // Requester
+      "requester_role" => "requester_role",
+
       // Other
       "role" => "user",
    ];
 
-   protected $actionFieldsObjectMapper = [
+   protected $defaultActionFieldsObjectMapper = [
       "brand_id" => "brand",
       "ticket_form_id" => "ticket_form",
       "group_id" => "group",
@@ -162,13 +179,13 @@ class DisplayFormatter
 
    public function rulesFieldFormatter($field)
    {
-      foreach ($this->conditionDisplayMapper as $type => $fields) {
+      foreach ($this->defaultConditionDisplayMapper as $type => $fields) {
          if (isset($fields[$field])) {
             return "$type: ". $fields[$field];
          }
       }
 
-      foreach ($this->actionDisplayMapper as $type => $fields) {
+      foreach ($this->defaultActionDisplayMapper as $type => $fields) {
          if (isset($fields[$field])) {
             return "$type: ". $fields[$field];
          }
@@ -218,6 +235,10 @@ class DisplayFormatter
          return is_numeric($value) ? $this->displayRepository->getOrganizationFieldOptionName($organization_field_value, $value) : $value;
       }
 
+      if ($type == "requester_role") {
+         return $this->displayRepository->getRequesterRoleValue($value);
+      }
+
       if ($type == "schedule") {
          return $this->displayRepository->getScheduleName($value);
       }
@@ -244,6 +265,10 @@ class DisplayFormatter
 
       if ($type == "ticket_sharing") {
          return is_numeric($value) ? $this->displayRepository->getSharingAgreementName($value) : $value;
+      }
+
+      if ($type == "ticket_type") {
+         return $this->displayRepository->getTicketTypeValue($value);
       }
 
       if ($type == "user") {
@@ -287,12 +312,12 @@ class DisplayFormatter
 
    protected function getFieldType($field_string)
    {
-      if (isset($this->conditionFieldsObjectMapper[$field_string])) {
-         return $this->conditionFieldsObjectMapper[$field_string];
+      if (isset($this->defaultConditionFieldsObjectMapper[$field_string])) {
+         return $this->defaultConditionFieldsObjectMapper[$field_string];
       }
 
-      if (isset($this->actionFieldsObjectMapper[$field_string])) {
-         return $this->actionFieldsObjectMapper[$field_string];
+      if (isset($this->defaultActionFieldsObjectMapper[$field_string])) {
+         return $this->defaultActionFieldsObjectMapper[$field_string];
       }
 
       if ($this->isTicketField($field_string) || $this->isCustomField($field_string)) {

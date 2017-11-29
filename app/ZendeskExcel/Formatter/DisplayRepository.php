@@ -38,6 +38,19 @@ class DisplayRepository
       55 => 'any_channel'
    ];
 
+   protected $requester_role_values = [
+      0 => 'end-user',
+      2 => 'admin',
+      4 => 'agent'
+   ];
+
+   protected $ticket_type_values = [
+      1 => "question",
+      2 => 'incident',
+      3 => 'problem',
+      4 => 'task'
+   ];
+
    public function __construct(ZendeskAPI $client)
    {
       $this->client = $client;
@@ -110,6 +123,10 @@ class DisplayRepository
       }
 
       return $id;
+   }
+
+   public function getRequesterRoleValue($value) {
+      return isset($this->requester_role_values[$value]) ? $this->requester_role_values[$value] : $value;
    }
 
    public function getScheduleName($id)
@@ -226,6 +243,9 @@ class DisplayRepository
       return isset($ticket_form->name) ? $ticket_form->name : $id;
    }
 
+   public function getTicketTypeValue($value) {
+      return isset($this->ticket_type_values[$value]) ? $this->ticket_type_values[$value] : $value;
+   }
    public function getSharingAgreementName($id)
    {
       $self = $this;

@@ -106,10 +106,24 @@ class ExcelTicketForm extends ResourceExcel
       $client = $this->client;
 
       // Cache ticket fields for testing purpose
-      $ticket_forms_response = Cache::remember('ticket_forms_mock', 60, function() use ($client) {
-         return $client->get('api/v2/ticket_forms');
+      // $ticket_forms_response = Cache::remember('ticket_forms_mock', 60, function() use ($client) {
+      //    return $client->get('api/v2/ticket_forms');
+      // });
+      // $this->setTicketForms($ticket_forms_response->ticket_forms);
+
+      $client = $this->client;
+      $subdomain = $client->getSubdomain();
+      $ticket_forms = Cache::remember("$subdomain.ticket_forms", 60, function() use ($client) {
+         $ticket_forms = [];
+         $page = 1;
+         do {
+            $response = $client->get("api/v2/ticket_forms?page=$page");
+            $ticket_forms = array_merge($ticket_forms, $response->ticket_forms);
+            $page++;
+         } while ($response->next_page !== null);
+         return $ticket_forms;
       });
-      $this->setTicketForms($ticket_forms_response->ticket_forms);
+      $this->setTicketForms($ticket_forms);
 
       return $this;
    }

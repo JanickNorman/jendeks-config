@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Zendesk\API\HttpClient as ZendeskAPI;
 use Zendesk\API\Exceptions\ApiResponseException;
 use \Session;
+use \Cache;
 
 class ZendeskLoginController extends Controller
 {
@@ -22,6 +23,8 @@ class ZendeskLoginController extends Controller
       try {
          $client = new ZendeskAPI("$request->source_subdomain");
          $client->setHeader('Authorization', "basic ".base64_encode("$request->source_username:$request->source_password"));
+
+         Cache::flush();
 
          // WARNING!! This is a very hackable way to test if th euser enter a valid username and password for a given subdomain
          $client->triggers()->findAll(['page' => 1]);

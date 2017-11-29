@@ -2,9 +2,11 @@
 
 namespace App\ZendeskExcel;
 
+use Zendesk\API\HttpClient as ZendeskAPI;
+use App\ZendeskExcel\Formatter\DisplayRepository;
+use App\ZendeskExcel\Formatter\SLADisplayFormatter;
 use \Excel;
 use \Cache;
-use Zendesk\API\HttpClient as ZendeskAPI;
 
 class ExcelSLA extends ResourceExcel
 {
@@ -24,6 +26,7 @@ class ExcelSLA extends ResourceExcel
       parent::__construct($client);
 
       $this->slas = isset($slas_response->sla_policies) ? $slas_response->sla_policies : [];
+      $this->display = new SLADisplayFormatter(new DisplayRepository($client));
    }
 
    public function read($filepath): Array
@@ -116,12 +119,18 @@ class ExcelSLA extends ResourceExcel
       }
 
       $client = $this->client;
-
-      // Cache ticket fields for testing purpose
-      $slas_response = Cache::remember('slas_mock', 60, function() use ($client) {
-         return $client->slaPolicies()->findAll(['page' => 1]);
+      $subdomain = $client->getSubdomain();
+      $sla_policies = Cache::remember("$subdomain.slas", 60, function() use ($client) {
+         $sla_policies = [];
+         $page = 1;
+         do {
+            $response = $client->slaPolicies()->findAll(['page' => $page]);
+            $sla_policies = array_merge($sla_policies, $response->sla_policies);
+            $page++;
+         } while ($response->next_page !== null);
+         return $sla_policies;
       });
-      $this->setSlas($slas_response->sla_policies);
+      $this->setSlas($sla_policies);
 
       return $this;
    }
