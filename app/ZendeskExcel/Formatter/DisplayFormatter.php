@@ -198,7 +198,7 @@ class DisplayFormatter
 
       if ($this->isTicketField($field)) {
          $ticket_field_id = $this->retrieveTicketFieldId($field);
-         return $this->displayRepository->getTicketFieldTitle($ticket_field_id);
+         return "Custom Field: " . $this->displayRepository->getTicketFieldTitle($ticket_field_id);
       }
 
       if ($this->isOrganizationField($field)) {
