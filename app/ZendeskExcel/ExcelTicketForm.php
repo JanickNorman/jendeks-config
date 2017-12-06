@@ -10,7 +10,7 @@ use \Cache;
 class ExcelTicketForm extends ResourceExcel
 {
    protected $headers = [
-      ["No", "Name", "Raw Name", "Display Name", "Raw Display Name", "Position", "Active", "End User Visible", "Default", "Ticket Field Ids", "In All Brand", "Restricted Brand Ids"]
+      ["No", "Name", "Raw Name", "Display Name", "Raw Display Name", "Position", "Active", "End User Visible", "Default", "Ticket Field", "In All Brand", "Restricted Brand"]
    ];
 
    public $ticket_forms;
