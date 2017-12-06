@@ -63,7 +63,7 @@ class DisplayFormatter
          "requester_updated_at" => "Hours since requester update",
          "assignee_updated_at" => "Hours since assignee update",
          // "due_date" => "Hours since due date", In DOCUMENTATION,
-         "due_at" => "Hours since due data", // In REALITY
+         "due_at" => "Hours since due date", // In REALITY
          "until_due_date" => "Hours until due date",
          "sla_next_breach_at" => "Hours since last SLA breach",
          "until_sla_next_breach_at" => "Hours until next SLA breach",
