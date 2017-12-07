@@ -9,8 +9,8 @@ use \Cache;
 class ExcelView extends ResourceExcel
 {
    protected $headers = [
-      ["No", "Title", "Active", "Restriction", null, "Position", "Output", null, null, null, null, "Condition", null, null],
-      [null, null, null, "Type", "Name", null, "Columns", "Group By", "Group Order", "Sort By", "Sort Order", "Type", "Field", "Operator", "Value",]
+      ["No", "Title", "Active", "Restriction", null, "Position", "Condition", null, null, null, "Output", null, null, null, null],
+      [null, null, null, "Type", "Name", null, "Type", "Field", "Operator", "Value", "Columns", "Group By", "Group Order", "Sort By", "Sort Order",]
    ];
 
    public $views;
@@ -47,8 +47,8 @@ class ExcelView extends ResourceExcel
       $this->sheet->mergeCells('F1:F2');
 
       $this->sheet->mergeCells('D1:E1');
-      $this->sheet->mergeCells('G1:K1');
-      $this->sheet->mergeCells('L1:O1');
+      $this->sheet->mergeCells('G1:J1');
+      $this->sheet->mergeCells('K1:O1');
       // $this->sheet->mergeCells('J1:N1');
       // $this->sheet->mergeCells('O1:P1');
    }
@@ -79,11 +79,30 @@ class ExcelView extends ResourceExcel
          }
          $self->setCell($initial_contents, $current_view_row);
 
+         // Render conditions
+         $condition_render_row = $current_view_row;
+         foreach ($view->conditions as $type => $conditions) {
+            foreach ($conditions as $condition) {
+               $contents = [
+                  "G" => $type,
+                  "H" => $this->display->rulesFieldFormatter($condition->field),
+                  "I" => $condition->operator,
+                  "J" => $this->display->rulesValueFormatter($condition->field, $condition->value)
+               ];
+               $self->setCell($contents, $condition_render_row);
+               $condition_render_row++;
+            }
+
+            if ($condition_render_row >= $next_view_row) {
+               $next_view_row = $condition_render_row;
+            }
+         }
+
          // Render columns
          $column_render_row = $current_view_row;
          foreach ($view->execution->columns as $column) {
             $contents = [
-               "G" => $column->title,
+               "K" => $column->title,
             ];
             $self->setCell($contents, $column_render_row);
             $column_render_row++;
@@ -95,31 +114,12 @@ class ExcelView extends ResourceExcel
 
          // Render other execution parameters
          $execution_contents = [
-            "H" => isset($view->execution->group->title) ? $view->execution->group->title : null,
-            "I" => $view->execution->group_order,
-            "J" => isset($view->execution->sort->title) ? $view->execution->sort->title : null ,
-            "K" => $view->execution->sort_order,
+            "L" => isset($view->execution->group->title) ? $view->execution->group->title : null,
+            "M" => $view->execution->group_order,
+            "N" => isset($view->execution->sort->title) ? $view->execution->sort->title : null ,
+            "O" => $view->execution->sort_order,
          ];
          $self->setCell($execution_contents, $current_view_row);
-
-         // Render conditions
-         $condition_render_row = $current_view_row;
-         foreach ($view->conditions as $type => $conditions) {
-            foreach ($conditions as $condition) {
-               $contents = [
-                  "L" => $type,
-                  "M" => $this->display->rulesFieldFormatter($condition->field),
-                  "N" => $condition->operator,
-                  "O" => $this->display->rulesValueFormatter($condition->field, $condition->value)
-               ];
-               $self->setCell($contents, $condition_render_row);
-               $condition_render_row++;
-            }
-
-            if ($condition_render_row >= $next_view_row) {
-               $next_view_row = $condition_render_row;
-            }
-         }
 
          $this->styleCurrentRow($current_view_row, $next_view_row);
          $current_view_row = $next_view_row;
