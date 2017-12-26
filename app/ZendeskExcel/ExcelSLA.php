@@ -125,7 +125,11 @@ class ExcelSLA extends ResourceExcel
          $page = 1;
          do {
             $response = $client->slaPolicies()->findAll(['page' => $page]);
-            $sla_policies = array_merge($sla_policies, $response->sla_policies);
+
+            // SLA ngga punya active, jadi ngga usah filter
+            $active_sla_policies = $response->sla_policies;
+
+            $sla_policies = array_merge($sla_policies, $active_sla_policies);
             $page++;
          } while ($response->next_page !== null);
          return $sla_policies;

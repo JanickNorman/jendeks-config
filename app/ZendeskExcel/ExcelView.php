@@ -150,7 +150,12 @@ class ExcelView extends ResourceExcel
          $page = 1;
          do {
             $response = $client->views()->findAll(['page' => $page]);
-            $views = array_merge($views, $response->views);
+
+            $active_views = array_filter($response->views, function($view) {
+              return $view->active;
+            });
+
+            $views = array_merge($views, $active_views);
             $page++;
          } while ($response->next_page !== null);
          return $views;

@@ -78,7 +78,11 @@ class ExcelGroup extends ResourceExcel
          $page = 1;
          do {
             $response = $client->groups()->findAll(['page' => $page]);
-            $groups = array_merge($groups, $response->groups);
+
+            // Group ngga punya active, jadi ngga usah filter
+            $active_groups = $response->groups;
+
+            $groups = array_merge($groups, $active_groups);
             $page++;
          } while ($response->next_page !== null);
          return $groups;

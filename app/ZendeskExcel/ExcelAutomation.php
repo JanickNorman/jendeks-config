@@ -137,7 +137,12 @@ class ExcelAutomation extends ResourceExcel
          $page = 1;
          do {
             $response = $client->automations()->findAll(['page' => $page]);
-            $automations = array_merge($automations, $response->automations);
+
+            $active_automations = array_filter($response->automations, function($automation) {
+              return $automation->active;
+            });
+
+            $automations = array_merge($automations, $active_automations);
             $page++;
          } while ($response->next_page !== null);
          return $automations;

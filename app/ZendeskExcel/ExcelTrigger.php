@@ -211,7 +211,12 @@ class ExcelTrigger extends ResourceExcel
          $page = 1;
          do {
             $response = $client->triggers()->findAll(['page' => $page]);
-            $triggers = array_merge($triggers, $response->triggers);
+
+            $active_triggers = array_filter($response->triggers, function($trigger) {
+              return $trigger->active;
+            });
+
+            $triggers = array_merge($triggers, $active_triggers);
             $page++;
          } while ($response->next_page !== null);
          return $triggers;

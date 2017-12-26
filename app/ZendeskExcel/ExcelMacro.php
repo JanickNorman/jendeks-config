@@ -141,7 +141,12 @@ class ExcelMacro extends ResourceExcel
          $page = 1;
          do {
             $response = $client->macros()->findAll(['page' => $page]);
-            $macros = array_merge($macros, $response->macros);
+
+            $active_macros = array_filter($response->macros, function($macro) {
+              return $macro->active;
+            });
+
+            $macros = array_merge($macros, $active_macros);
             $page++;
          } while ($response->next_page !== null);
          return $macros;

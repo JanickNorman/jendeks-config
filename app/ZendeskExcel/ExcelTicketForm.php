@@ -118,7 +118,12 @@ class ExcelTicketForm extends ResourceExcel
          $page = 1;
          do {
             $response = $client->get("api/v2/ticket_forms?page=$page");
-            $ticket_forms = array_merge($ticket_forms, $response->ticket_forms);
+
+            $active_ticket_forms = array_filter($response->ticket_forms, function($ticket_form) {
+              return $ticket_form->active;
+            });
+
+            $ticket_forms = array_merge($ticket_forms, $active_ticket_forms);
             $page++;
          } while ($response->next_page !== null);
          return $ticket_forms;

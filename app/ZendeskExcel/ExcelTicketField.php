@@ -130,7 +130,12 @@ class ExcelTicketField extends ResourceExcel
          $page = 1;
          do {
             $response = $client->ticketFields()->findAll(['page' => $page]);
-            $ticket_fields = array_merge($ticket_fields, $response->ticket_fields);
+
+            $active_ticket_fields = array_filter($response->ticket_fields, function($ticket_field) {
+              return $ticket_field->active;
+            });
+
+            $ticket_fields = array_merge($ticket_fields, $active_ticket_fields);
             $page++;
          } while ($response->next_page !== null);
          return $ticket_fields;
