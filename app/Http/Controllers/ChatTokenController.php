@@ -24,7 +24,7 @@ class ChatTokenController extends Controller
             return $request->get('client_secret'); 
         });
         // $redirect_uri = "http%3A%2F%2Flocalhost%3A8000%2Fredirect";
-        $redirect_uri = "http%3A%2F%2Fjendeks-migrator.herokuapp.com%2Fredirect";
+        $redirect_uri = "https%3A%2F%2Fjendeks-migrator.herokuapp.com%2Fredirect";
         $url = "https://www.zopim.com/oauth2/authorizations/new?response_type=code&redirect_uri={$redirect_uri}&client_id={$client_id}&scope=read%20write%20chat&subdomain={$subdomain}";
         
         return redirect()->away($url);
@@ -34,7 +34,7 @@ class ChatTokenController extends Controller
         $code = $request->get('code');
         $client_id = Cache::get('client_id');
         $client_secret = Cache::get('client_secret');
-        $redirect_uri = "http://jendeks-migrator.herokuapp.com/redirect";
+        $redirect_uri = "https://jendeks-migrator.herokuapp.com/redirect";
         // dd($code, $client_id, $client_secret);
 
         $client = new Client(); //GuzzleHttp\Client
