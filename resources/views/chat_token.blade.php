@@ -20,19 +20,19 @@
                         <div id="div_id_location" class="form-group required">
                             <label for="id_location" class="control-label col-md-4  requiredField"> Client Id<span class="asteriskField">*</span> </label>
                             <div class="controls col-md-8 ">
-                                <input class="input-md textinput textInput form-control" id="client_id" name="client_id" placeholder="Your Pincode and City" style="margin-bottom: 10px" type="text" />
+                                <input class="input-md textinput textInput form-control" id="client_id" name="client_id" style="margin-bottom: 10px" type="text" />
                             </div> 
                         </div>
                         <div id="div_id_location" class="form-group required">
                             <label for="id_location" class="control-label col-md-4  requiredField"> Client Secret<span class="asteriskField">*</span> </label>
                             <div class="controls col-md-8 ">
-                                <input class="input-md textinput textInput form-control" id="client_secret" name="client_secret" placeholder="Your Pincode and City" style="margin-bottom: 10px" type="text" />
+                                <input class="input-md textinput textInput form-control" id="client_secret" name="client_secret" style="margin-bottom: 10px" type="text" />
                             </div> 
                         </div>
                         <div id="div_id_location" class="form-group required">
                             <label for="id_location" class="control-label col-md-4  requiredField"> Subdomain<span class="asteriskField">*</span> </label>
                             <div class="controls col-md-8 ">
-                                <input class="input-md textinput textInput form-control" id="subdomain" name="subdomain" placeholder="Your Pincode and City" style="margin-bottom: 10px" type="text" />
+                                <input class="input-md textinput textInput form-control" id="subdomain" name="subdomain" style="margin-bottom: 10px" type="text" />
                             </div> 
                         </div>
                         
