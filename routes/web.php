@@ -58,3 +58,8 @@ Route::prefix('excel')->group(function() {
 
    Route::get('sharingagreements/', "ExcelSharingAgreementsController@home")->name('excel');
 });
+
+Route::get('chats/oauth', 'ChatTokenController@home');
+Route::post('chats/oauth', 'ChatTokenController@oauth');
+Route::get('redirect', 'ChatTokenController@redirect');
+
