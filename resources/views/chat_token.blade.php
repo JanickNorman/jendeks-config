@@ -4,7 +4,36 @@
 <!------ Include the above in your HEAD tag ---------->
 
 <div class="container">    
-            
+<div class="col-lg-12 col-md-12">
+
+                            <!--Section: Doc content-->
+<section class="documentation">
+
+    <!--Section: Intro-->
+    <section id="introduction">
+
+        <!--Title-->
+        <h1 class="main-title">Tutorial</h1>
+
+        <!--Description-->
+        <p>Bootstrap stepper is a component that displays content as a process with defined by user milestones. Following steps are separated and connected by buttons.</p>
+
+        <p>This is a great solution for a variety of registration forms, where you don't want to scare the user with loads of fields and questions.</p>
+
+        <p>Stepper can be aligned vertically as well as horizontally.</p>
+
+        <p>Examples of Bootstrap steps use:</p>
+
+        <ul>
+            <li>Registration form</li>    
+            <li>Payment gateway</li>
+            <li>Tutorial with steps</li>   
+        </ul>
+
+
+    </section>
+
+
     <div id="signupbox" style=" margin-top:50px" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
         <div class="panel panel-info">
             <div class="panel-heading">

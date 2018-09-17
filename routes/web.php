@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +60,29 @@ Route::prefix('excel')->group(function() {
    Route::get('sharingagreements/', "ExcelSharingAgreementsController@home")->name('excel');
 });
 
-Route::get('chats/oauth', 'ChatTokenController@home');
+
+Route::get('chats', 'ChatsController@home');
+Route::post('chats/download', function(Request $request) 
+{
+    $token = $request->get('token');
+    $resource_name = $request->get('resource');
+
+    switch ($resource_name) {
+        case 'chats':
+            return downloadChats($token);
+            break;
+        case 'agent_timeline':
+            return downloadAgentTimeline($token);
+            break;
+        case 'agents':
+            return downloadAgents($token);
+            break;
+        default:
+            return "stop";
+    }
+});
+
+Route::get('chats/oauth', 'ChatTokenController@index');
 Route::post('chats/oauth', 'ChatTokenController@oauth');
 Route::get('redirect', 'ChatTokenController@redirect');
 

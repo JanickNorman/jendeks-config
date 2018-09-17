@@ -8,12 +8,12 @@ use \Cache;
 
 class ChatTokenController extends Controller
 {
-    public function home() {
+    public function index() {
         return view('chat_token');
     }
 
     public function oauth(Request $request) {
-        
+       
         $subdomain = Cache::remember('subdomain', 1, function() use ($request) {
             return $request->get('subdomain'); 
         });
@@ -52,8 +52,12 @@ class ChatTokenController extends Controller
             ]);
     
             $result = json_decode($result->getBody()->getContents(),true);        ;
-            $token = $result['access_token'];
             
+            
+            $token = Cache::remember('chats_access_token', 1, function() use ($result) {
+                return $result['access_token'];
+            });
+
             return view('token_result', compact('token'));
         } catch (\Exception $e) {
             dd($e);

@@ -10,7 +10,7 @@
 
         <h3>Token</h3>
         <p style="font-size:20px;color:#5C5C5C;">{{ $token }}</p>
-    <br><br>
+            <br><br>
         </div>
         
 	</div>
