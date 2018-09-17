@@ -35,6 +35,7 @@ class ChatTokenController extends Controller
         $client_id = Cache::get('client_id');
         $client_secret = Cache::get('client_secret');
         $redirect_uri = "https://jendeks-migrator.herokuapp.com/redirect";
+        // $redirect_uri = "http://localhost:8000/redirect";
         // dd($code, $client_id, $client_secret);
 
         $client = new Client(); //GuzzleHttp\Client

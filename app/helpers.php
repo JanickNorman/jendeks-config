@@ -64,7 +64,7 @@ function downloadChats($token) {
 
 function downloadAgentTimeline($token)
 {
-    $client = new GuzzleHttp\Client();
+      $client = new GuzzleHttp\Client();
 
     //'visitor.email', 'visitor.name', “agent_names', “session.start_date', “session.end_date', “duration', “missed”, “unread”, “rating”, “response_time.first”, “response_time.avg”, “response_time.max”, “started_by”, “duration
       $chat_results = [];
